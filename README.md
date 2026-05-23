@@ -55,7 +55,7 @@ books-rest-api/
 ### Clone the repository
 
 ```bash id="9mxn7g"
-git clone https://github.com/your-username/books-rest-api.git
+git clone https://github.com/michaelbag8/books-rest-api.git
 ```
 
 ### Navigate into the project directory
@@ -128,12 +128,8 @@ go test ./...
 
 ---
 
-## License
-
-This project is licensed under the MIT License.
-
----
-
 ## Author
+
+Michael BAG
 
 Built with ❤️ using pure Golang and the `net/http` package.
