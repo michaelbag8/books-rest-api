@@ -32,7 +32,7 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 
 }
 
-//getAllBooks to get the list of all the books
+// getAllBooks to get the list of all the books
 func getAllBooks(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
@@ -52,27 +52,25 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req Book
-	
-	if err := json.NewDecoder(r.Body).Decode(&req); err!=nil{
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid request body",
 		})
 		return
 	}
 
-	if req.Title == "" || req.Author == "" || req.Pages == 0{
+	if req.Title == "" || req.Author == "" || req.Pages == 0 {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "title, author and pages are required",
 		})
 		return
 	}
 
-
 	req.ID = nextID
 	nextID++
 	books = append(books, req)
 	writeJSON(w, http.StatusCreated, req)
-
 
 }
 
@@ -138,8 +136,7 @@ func main() {
 	fmt.Println("serving is runing at http://localhost:8080/")
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println("server failed to start",err)
+		fmt.Println("server failed to start", err)
 		return
 	}
 }
-
