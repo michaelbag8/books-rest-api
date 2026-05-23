@@ -52,6 +52,14 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req Book
+	
+	if err := json.NewDecoder(r.Body).Decode(&req); err!=nil{
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid request body",
+		})
+		return
+	}
+
 	if req.Title == "" || req.Author == "" || req.Pages == 0{
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "title, author and pages are required",
@@ -59,12 +67,6 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err!=nil{
-		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "invalid request body",
-		})
-		return
-	}
 
 	req.ID = nextID
 	nextID++
