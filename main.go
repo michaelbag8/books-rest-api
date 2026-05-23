@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type Book struct {
@@ -51,8 +52,8 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	var req Book
 
+	var req Book
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid request body",
@@ -85,8 +86,16 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 }
 func getBook(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
+			"error": "method not allowed",
+		})
+		return
 	}
+	path := r.URL.Path
+	parts := strings.Split(path, "/")
+	id := parts[1]
+	book := books[id]
+	writeJSON(w, http.StatusFound, book)
 
 }
 
