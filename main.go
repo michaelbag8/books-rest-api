@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -84,6 +85,7 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 func getBook(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
@@ -91,11 +93,35 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	path := r.URL.Path
 	parts := strings.Split(path, "/")
-	id := parts[1]
-	book := books[id]
-	writeJSON(w, http.StatusFound, book)
+
+	if len(parts) < 3 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid URl",
+		})
+		return
+	}
+
+	id, err := strconv.Atoi(parts[2])
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid id",
+		})
+		return
+	}
+
+	for _, b := range books {
+		if b.ID == id {
+			writeJSON(w, http.StatusOK, b)
+			return
+		}
+	}
+
+	writeJSON(w, http.StatusNotFound, map[string]string{
+		"error": "book not found",
+	})
 
 }
 
@@ -140,6 +166,7 @@ func bookHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/books", booksHandler)
+	http.HandleFunc("/books/", getBook)
 	http.HandleFunc("/book", bookHandler)
 
 	fmt.Println("serving is runing at http://localhost:8080/")
