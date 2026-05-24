@@ -79,12 +79,12 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 
 //update a book
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
-			"error": "method not allowed",
-		})
-		return
-	}
+	// if r.Method != http.MethodPut {
+	// 	writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
+	// 		"error": "method not allowed",
+	// 	})
+	// 	return
+	// }
 	path := r.URL.Path
 	parts := strings.Split(path, "/")
 	if len(parts) < 3{
