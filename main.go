@@ -76,18 +76,18 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
-//update a book
+// update a book
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != http.MethodPut {
-	// 	writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
-	// 		"error": "method not allowed",
-	// 	})
-	// 	return
-	// }
+	if r.Method != http.MethodPut {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
+			"error": "method not allowed",
+		})
+		return
+	}
+
 	path := r.URL.Path
 	parts := strings.Split(path, "/")
-	if len(parts) < 3{
+	if len(parts) < 3 {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid id",
 		})
@@ -96,23 +96,33 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(parts[2])
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "invalid id",
+			"error": "invalid id convsersion",
 		})
 		return
 	}
 
-	for _, b := range books{
-		if b.ID == id{
-			b = books[id]
-			writeJSON(w, http.StatusOK, b)
+	var updatedBook Book
+
+	err = json.NewDecoder(r.Body).Decode(&updatedBook)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "bad request book",
+		})
+		return
+	}
+
+	for i, b := range books {
+		if b.ID == id {
+			updatedBook.ID = id
+			books[i] = updatedBook
+
+			writeJSON(w, http.StatusOK, updatedBook)
 			return
 		}
 	}
 	writeJSON(w, http.StatusNotFound, map[string]string{
 		"error": "book not found",
 	})
-
-
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
@@ -195,8 +205,9 @@ func bookHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/books", booksHandler)
+	//http.HandleFunc("/books", updateBook)
 	http.HandleFunc("/books/", getBook)
-	http.HandleFunc("/book", bookHandler)
+	http.HandleFunc("/book/", updateBook)
 
 	fmt.Println("serving is runing at http://localhost:8080/")
 
