@@ -24,7 +24,7 @@ var books = []Book{
 }
 
 // since we already have four books our next will be 5
-var nextID int = 5
+var nextID = 5
 
 func writeJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -34,12 +34,24 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 
 }
 
+func getIDFromPath(r *http.Request)(int, error){
+	path := r.URL.Path
+	parts := strings.Split(path, "/")
+
+	if len(parts) < 3{
+		return  0, fmt.Errorf("invalid path")
+	}
+
+	return strconv.Atoi(parts[2])
+
+}
 // getAllBooks to get the list of all the books
 func getAllBooks(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, books)
 }
 
 func createBook(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	var req Book
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
@@ -64,29 +76,23 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 
 // update a book
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	parts := strings.Split(path, "/")
-	if len(parts) < 3 {
+	defer r.Body.Close()
+	id, err := getIDFromPath(r)
+	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid id",
 		})
 		return
 	}
 
-	id, err := strconv.Atoi(parts[2])
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "invalid id convsersion",
-		})
-		return
-	}
+	
 
 	var updatedBook Book
 
 	err = json.NewDecoder(r.Body).Decode(&updatedBook)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "bad request book",
+			"error": "invalid book request",
 		})
 		return
 	}
@@ -106,17 +112,7 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	parts := strings.Split(path, "/")
-
-	if len(parts) < 3 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "invalid URl",
-		})
-		return
-	}
-
-	id, err := strconv.Atoi(parts[2])
+	id, err := getIDFromPath(r)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid id",
@@ -138,7 +134,26 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteBook(w http.ResponseWriter, r *http.Request) {
-	
+	id , err := getIDFromPath(r)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid id",
+		})
+		return
+	}
+
+for i, b := range books {
+    if b.ID == id {
+        books = append(books[:i], books[i+1:]...)
+        w.WriteHeader(http.StatusNoContent)
+        return
+    }
+}
+
+writeJSON(w, http.StatusNotFound, map[string]string{
+    "error": "book not found",
+})
+
 
 }
 
@@ -179,7 +194,7 @@ func main() {
 	http.HandleFunc("/books/", bookHandler)
 	
 
-	fmt.Println("serving is runing at http://localhost:8080/")
+	fmt.Println("Server is running at http://localhost:8080/")
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		fmt.Println("server failed to start", err)
