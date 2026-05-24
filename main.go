@@ -91,6 +91,7 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid id",
 		})
+		return
 	}
 
 	id, err := strconv.Atoi(parts[2])
@@ -205,9 +206,8 @@ func bookHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/books", booksHandler)
-	//http.HandleFunc("/books", updateBook)
-	http.HandleFunc("/books/", getBook)
-	http.HandleFunc("/book/", updateBook)
+	http.HandleFunc("/books/", bookHandler)
+	
 
 	fmt.Println("serving is runing at http://localhost:8080/")
 
