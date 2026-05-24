@@ -76,13 +76,42 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
+
+//update a book
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPut {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
 			"error": "method not allowed",
 		})
 		return
 	}
+	path := r.URL.Path
+	parts := strings.Split(path, "/")
+	if len(parts) < 3{
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid id",
+		})
+	}
+
+	id, err := strconv.Atoi(parts[2])
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid id",
+		})
+		return
+	}
+
+	for _, b := range books{
+		if b.ID == id{
+			b = books[id]
+			writeJSON(w, http.StatusOK, b)
+			return
+		}
+	}
+	writeJSON(w, http.StatusNotFound, map[string]string{
+		"error": "book not found",
+	})
+
 
 }
 
@@ -132,7 +161,7 @@ func deleteBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// to handler all books method
+// to handle all books method
 func booksHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -147,7 +176,7 @@ func booksHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// // to handler single book method
+// // to handle single book method
 func bookHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
