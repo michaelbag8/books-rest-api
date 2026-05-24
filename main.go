@@ -36,24 +36,10 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 
 // getAllBooks to get the list of all the books
 func getAllBooks(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
-			"error": "method not allowed",
-		})
-		return
-	}
-
 	writeJSON(w, http.StatusOK, books)
 }
 
 func createBook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
-			"error": "method not allowed",
-		})
-		return
-	}
-
 	var req Book
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
@@ -78,13 +64,6 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 
 // update a book
 func updateBook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
-			"error": "method not allowed",
-		})
-		return
-	}
-
 	path := r.URL.Path
 	parts := strings.Split(path, "/")
 	if len(parts) < 3 {
@@ -127,13 +106,6 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{
-			"error": "method not allowed",
-		})
-		return
-	}
-
 	path := r.URL.Path
 	parts := strings.Split(path, "/")
 
@@ -166,9 +138,7 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteBook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-
-	}
+	
 
 }
 
